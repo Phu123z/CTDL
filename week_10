@@ -1,0 +1,72 @@
+#include <iostream>
+#include <stack>
+using namespace std;
+
+struct Log {
+    string species;
+    double length;
+    int yearsOld;
+    Log(string sp, double len, int age) : species(sp), length(len), yearsOld(age) {}
+};
+
+// Hàm đếm số thanh gỗ có cùng tuổi
+int countLogsWithAge(stack<Log> logs, int targetAge) {
+    int matchCount = 0;
+    stack<Log> backupStack; // Sử dụng stack tạm để không thay đổi stack gốc
+
+    while (!logs.empty()) {
+        if (logs.top().yearsOld == targetAge) {
+            matchCount++;
+        }
+        backupStack.push(logs.top());
+        logs.pop();
+    }
+
+    // Khôi phục stack gốc
+    while (!backupStack.empty()) {
+        logs.push(backupStack.top());
+        backupStack.pop();
+    }
+    
+    return matchCount;
+}
+
+int main() {
+    stack<Log> logStack;
+    char userOption;
+
+    do {
+        string species;
+        double length;
+        int yearsOld;
+
+        cout << "Nhập loại gỗ: ";
+        cin >> species;
+        cout << "Nhập chiều dài (m): ";
+        cin >> length;
+        cout << "Nhập tuổi của gỗ (năm): ";
+        cin >> yearsOld;
+
+        logStack.push(Log(species, length, yearsOld)); // Thêm thanh gỗ vào stack
+        cout << "Bạn có muốn nhập thêm gỗ không? (y/n): ";
+        cin >> userOption;
+
+    } while (userOption == 'y' || userOption == 'Y');
+
+    int selectedAge;
+    cout << "Nhập tuổi của gỗ mà bạn muốn đếm: ";
+    cin >> selectedAge;
+
+    int logCount = countLogsWithAge(logStack, selectedAge);
+    cout << "Số thanh gỗ có tuổi " << selectedAge << " là: " << logCount << endl;
+
+    cout << "\nDanh sách các thanh gỗ hiện có:\n";
+    stack<Log> tempStack = logStack;
+    while (!tempStack.empty()) {
+        Log currentLog = tempStack.top();
+        cout << "Loại: " << currentLog.species << ", Chiều dài: " << currentLog.length << "m, Tuổi: " << currentLog.yearsOld << " năm\n";
+        tempStack.pop();
+    }
+
+    return 0;
+}
