@@ -1,0 +1,119 @@
+#include <iostream>
+using namespace std;
+
+// Định nghĩa cấu trúc Node
+struct Node {
+    char value;     // Giá trị node (toán tử hoặc toán hạng)
+    Node* left;     // Con trái
+    Node* right;    // Con phải
+
+    // Hàm khởi tạo
+    Node(char val) {
+        value = val;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+// Hàm duyệt NLR (Preorder)
+void preorder(Node* node) {
+    if (node != nullptr) {
+        cout << node->value << " "; // In giá trị của node hiện tại
+        preorder(node->left);       // Duyệt trái
+        preorder(node->right);      // Duyệt phải
+    }
+}
+
+// Hàm duyệt LNR (Inorder)
+void inorder(Node* node) {
+    if (node != nullptr) {
+        inorder(node->left);        // Duyệt trái
+        cout << node->value << " "; // In giá trị của node hiện tại
+        inorder(node->right);       // Duyệt phải
+    }
+}
+
+// Hàm duyệt LRN (Postorder)
+void postorder(Node* node) {
+    if (node != nullptr) {
+        postorder(node->left);      // Duyệt trái
+        postorder(node->right);     // Duyệt phải
+        cout << node->value << " "; // In giá trị của node hiện tại
+    }
+}
+
+// Hàm dựng cây biểu thức
+Node* buildExpressionTree() {
+    // Tạo các node lá (toán hạng)
+    Node* a = new Node('a');
+    Node* b = new Node('b');
+    Node* c = new Node('c');
+    Node* d = new Node('d');
+    Node* e = new Node('e');
+    Node* n1 = new Node('5');
+    Node* n2 = new Node('8');
+    Node* n3 = new Node('1');
+    Node* n4 = new Node('2');
+
+    // Tạo các node lũy thừa
+    Node* power1 = new Node('^');
+    power1->left = c;
+    power1->right = n2;
+
+    Node* power2 = new Node('^');
+    power2->left = e;
+    power2->right = n3;
+
+    // Tạo các node nhân và chia
+    Node* mul1 = new Node('*');
+    mul1->left = b;
+    mul1->right = c;
+
+    Node* div1 = new Node('/');
+    div1->left = mul1;
+    div1->right = c;
+
+    Node* mul2 = new Node('*');
+    mul2->left = power2;
+    mul2->right = d;
+
+    Node* div2 = new Node('/');
+    div2->left = n4;
+    div2->right = mul2;
+
+    // Tạo các node cộng và trừ
+    Node* add1 = new Node('+');
+    add1->left = a;
+    add1->right = div1;
+
+    Node* add2 = new Node('+');
+    add2->left = add1;
+    add2->right = power1;
+
+    Node* root = new Node('-');
+    root->left = add2;
+    root->right = div2;
+
+    return root; // Trả về gốc của cây
+}
+
+// Hàm chính
+int main() {
+    // Dựng cây biểu thức
+    Node* root = buildExpressionTree();
+
+    // In kết quả duyệt cây
+    cout << "Duyệt NLR (Preorder): ";
+    preorder(root);
+    cout << endl;
+
+    cout << "Duyệt LNR (Inorder): ";
+    inorder(root);
+    cout << endl;
+
+    cout << "Duyệt LRN (Postorder): ";
+    postorder(root);
+    cout << endl;
+
+    return 0;
+}
