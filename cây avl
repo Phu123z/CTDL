@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Định nghĩa cấu trúc node của cây AVL
+typedef struct AVLNode {
+    int key;
+    int height;
+    struct AVLNode* left;
+    struct AVLNode* right;
+} AVLNode;
+
+// Hàm tạo một node mới
+AVLNode* createNode(int key) {
+    AVLNode* node = (AVLNode*)malloc(sizeof(AVLNode));
+    node->key = key;
+    node->height = 1;  // Chiều cao ban đầu là 1
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+// Hàm lấy chiều cao của node
+int getHeight(AVLNode* node) {
+    return node ? node->height : 0;
+}
+
+// Hàm tính hệ số cân bằng
+int getBalance(AVLNode* node) {
+    return node ? getHeight(node->left) - getHeight(node->right) : 0;
+}
+
+// Hàm cập nhật chiều cao của node
+void updateHeight(AVLNode* node) {
+    if (node) {
+        node->height = 1 + (getHeight(node->left) > getHeight(node->right) ? getHeight(node->left) : getHeight(node->right));
+    }
+}
+
+// Hàm xoay phải
+AVLNode* rotateRight(AVLNode* y) {
+    AVLNode* x = y->left;
+    AVLNode* T = x->right;
+
+    x->right = y;
+    y->left = T;
+
+    updateHeight(y);
+    updateHeight(x);
+
+    return x;
+}
+
+// Hàm xoay trái
+AVLNode* rotateLeft(AVLNode* x) {
+    AVLNode* y = x->right;
+    AVLNode* T = y->left;
+
+    y->left = x;
+    x->right = T;
+
+    updateHeight(x);
+    updateHeight(y);
+
+    return y;
+}
+
+// Hàm cân bằng cây
+AVLNode* balance(AVLNode* node) {
+    updateHeight(node);
+    int balanceFactor = getBalance(node);
+
+    // Left heavy
+    if (balanceFactor > 1) {
+        if (getBalance(node->left) < 0) {
+            node->left = rotateLeft(node->left);  // Xoay trái con bên trái
+        }
+        return rotateRight(node);  // Xoay phải
+    }
+
+    // Right heavy
+    if (balanceFactor < -1) {
+        if (getBalance(node->right) > 0) {
+            node->right = rotateRight(node->right);  // Xoay phải con bên phải
+        }
+        return rotateLeft(node);  // Xoay trái
+    }
+
+    return node;  // Không cần cân bằng
+}
+
+// Hàm chèn một node vào cây AVL
+AVLNode* insert(AVLNode* root, int key) {
+    if (!root) return createNode(key);
+
+    if (key < root->key)
+        root->left = insert(root->left, key);
+    else if (key > root->key)
+        root->right = insert(root->right, key);
+    else
+        return root;  // Không cho phép giá trị trùng
+
+    return balance(root);
+}
+
+// Hàm duyệt cây theo thứ tự trước (Preorder)
+void preorderTraversal(AVLNode* root) {
+    if (root) {
+        printf("%d ", root->key);
+        preorderTraversal(root->left);
+        preorderTraversal(root->right);
+    }
+}
+
+// Hàm duyệt cây theo thứ tự giữa (Inorder)
+void inorderTraversal(AVLNode* root) {
+    if (root) {
+        inorderTraversal(root->left);
+        printf("%d ", root->key);
+        inorderTraversal(root->right);
+    }
+}
+
+// Hàm duyệt cây theo thứ tự sau (Postorder)
+void postorderTraversal(AVLNode* root) {
+    if (root) {
+        postorderTraversal(root->left);
+        postorderTraversal(root->right);
+        printf("%d ", root->key);
+    }
+}
+
+// Hàm chính
+int main() {
+    int arr[] = {10, 20, 30, 40, 50, 25};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    AVLNode* root = NULL;
+
+    printf("Quá trình xây dựng cây AVL:\n");
+    for (int i = 0; i < n; i++) {
+        root = insert(root, arr[i]);
+        printf("Sau khi thêm %d: ", arr[i]);
+        preorderTraversal(root);
+        printf("\n");
+    }
+
+    printf("\nDuyệt cây AVL theo thứ tự trước (Preorder): ");
+    preorderTraversal(root);
+
+    printf("\nDuyệt cây AVL theo thứ tự giữa (Inorder): ");
+    inorderTraversal(root);
+
+    printf("\nDuyệt cây AVL theo thứ tự sau (Postorder): ");
+    postorderTraversal(root);
+
+    return 0;
+}
