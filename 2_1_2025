@@ -1,0 +1,147 @@
+#include <stdio.h>
+
+#define MAX_VERTICES 8 // Số lượng đỉnh tối đa
+#define QUEUE_SIZE MAX_VERTICES
+
+// Định nghĩa kiểu boolean
+typedef enum {
+    FALSE = 0,
+    TRUE = 1
+} boolean;
+
+// Cấu trúc đồ thị sử dụng ma trận kề
+int adjacencyMatrix[MAX_VERTICES][MAX_VERTICES];
+int numVertices = MAX_VERTICES; // Số lượng đỉnh cố định là 8 trong trường hợp này
+
+// Hàm nhập ma trận kề (dựa trên dữ liệu đã cho)
+void nhapDoThi() {
+    // Ma trận kề đã cho
+    int matrix[MAX_VERTICES][MAX_VERTICES] = {
+        {0, 1, 0, 0, 1, 0, 1, 1},
+        {0, 0, 1, 1, 0, 1, 0, 0},
+        {0, 1, 0, 1, 0, 1, 1, 1},
+        {1, 0, 1, 0, 0, 1, 0, 1},
+        {0, 1, 0, 1, 0, 1, 1, 1},
+        {1, 1, 1, 0, 1, 0, 1, 0},
+        {0, 0, 0, 0, 1, 1, 0, 0},
+        {0, 0, 0, 0, 1, 0, 1, 0}
+    };
+
+    // Sao chép ma trận đã cho vào adjacencyMatrix
+    for (int i = 0; i < numVertices; i++) {
+        for (int j = 0; j < numVertices; j++) {
+            adjacencyMatrix[i][j] = matrix[i][j];
+        }
+    }
+}
+
+// Cấu trúc hàng đợi cho BFS
+int queue[QUEUE_SIZE];
+int front = -1;
+int rear = -1;
+
+// Hàm kiểm tra hàng đợi có rỗng không
+boolean isEmpty() {
+    return (front == -1) ? TRUE : FALSE;
+}
+
+// Hàm thêm một phần tử vào hàng đợi
+void enqueue(int vertex) {
+    if (rear == QUEUE_SIZE - 1) {
+        printf("Hang doi day!\n");
+        return;
+    }
+    if (front == -1) {
+        front = 0;
+    }
+    rear++;
+    queue[rear] = vertex;
+}
+
+// Hàm loại bỏ một phần tử khỏi hàng đợi
+int dequeue() {
+    int vertex;
+    if (isEmpty()) {
+        printf("Hang doi rong!\n");
+        return -1;
+    }
+    vertex = queue[front];
+    front++;
+    if (front > rear) {
+        front = rear = -1;
+    }
+    return vertex;
+}
+
+// Hàm duyệt đồ thị theo chiều rộng (BFS)
+void bfs(int startVertex) {
+    boolean visited[MAX_VERTICES] = {FALSE}; // Mảng đánh dấu các đỉnh đã được thăm
+    printf("Thu tu duyet BFS: ");
+
+    visited[startVertex] = TRUE;
+    enqueue(startVertex);
+    printf("%c ", (char)('a' + startVertex)); // In đỉnh bắt đầu
+
+    while (!isEmpty()) {
+        int currentVertex = dequeue();
+
+        for (int neighbor = 0; neighbor < numVertices; neighbor++) {
+            if (adjacencyMatrix[currentVertex][neighbor] && !visited[neighbor]) {
+                visited[neighbor] = TRUE;
+                enqueue(neighbor);
+                printf("%c ", (char)('a' + neighbor));
+            }
+        }
+    }
+    printf("\n");
+}
+
+// Hàm duyệt đồ thị theo chiều sâu (DFS)
+void dfs(int vertex, boolean visited[]) {
+    visited[vertex] = TRUE;
+    printf("%c ", (char)('a' + vertex));
+
+    for (int neighbor = 0; neighbor < numVertices; neighbor++) {
+        if (adjacencyMatrix[vertex][neighbor] && !visited[neighbor]) {
+            dfs(neighbor, visited);
+        }
+    }
+}
+
+// Hàm gọi DFS chính
+void dfsTraversal(int startVertex) {
+    boolean visited[MAX_VERTICES] = {FALSE};
+    printf("Thu tu duyet DFS: ");
+    dfs(startVertex, visited);
+    printf("\n");
+}
+
+int main() {
+    printf("CHUONG TRINH DUYET DO THI\n");
+
+    // Nhập đồ thị (trong trường hợp này, chúng ta sử dụng ma trận đã cho)
+    nhapDoThi();
+    printf("Do thi da nhap (ma tran ke):\n");
+    printf("  ");
+    for (int i = 0; i < numVertices; i++) {
+        printf("%c ", (char)('a' + i));
+    }
+    printf("\n");
+    for (int i = 0; i < numVertices; i++) {
+        printf("%c ", (char)('a' + i));
+        for (int j = 0; j < numVertices; j++) {
+            printf("%d ", adjacencyMatrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    // Thực hiện duyệt BFS từ đỉnh 'a' (chỉ số 0)
+    printf("\nThuc hien duyet BFS:\n");
+    bfs(0);
+
+    // Thực hiện duyệt DFS từ đỉnh 'a' (chỉ số 0)
+    printf("\nThuc hien duyet DFS:\n");
+    dfsTraversal(0);
+
+    return 0;
+}
